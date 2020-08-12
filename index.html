@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script src="Scripts/jquery-1.6.4.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="signalR/hubs"></script>
+    <input id="joinName" placeholder="Join Name"/>
+    <button id="joinButton">Join Chat</button>
+    <input  id="toogleRoom" placeholder="Room Name"/>
+    <button id="joinRoom">Join</button>
+    <button id="leaveRoom">Leave</button>
+    <br />
+    <input  id="username" placeholder="username"/>
+    <input id="message" placeholder="message" />
+    <input id="user" placeholder="user"/>
+    <input id="room" placeholder="room"/>
+    <button id="sendButton">Send</button>
+    <div id="container"></div>
+    <script>
+        var chatHubProxy = $.connection.chat;
+
+        chatHubProxy.client.receiveMessage = function (username, message) {
+            $("#container").append(($('<p/>').text(username + ":  " + message))) // GET DATA
+        }
+
+        $.connection.hub.start().done(function () {
+            $('#sendButton').click(function () {
+                var username = $("#user").val();
+                var roomName = $("#room").val();
+                if (username != "") {
+                    chatHubProxy.server.sendMessageToUser($("#username").val(), $("#message").val(), username);
+                }
+
+                else if (roomName != "") {
+                   
+                    chatHubProxy.server.sendMessageToRoom($("#username").val(), $("#message").val(), roomName);
+                }
+                else {
+                    chatHubProxy.server.sendMessage($("#username").val(), $("#message").val());  // ENJOY DATA ON THE HUB
+                }
+
+            });
+
+            $("#joinRoom").click(function () {
+                chatHubProxy.server.joinRoom($("#toogleRoom").val());
+            })
+            $("#leaveRoom").click(function () {
+                chatHubProxy.server.leaveRoom($("#toogleRoom").val());
+            })
+
+            $("#joinButton").click(function () {
+                chatHubProxy.server.joinChat($("#joinName").val());
+            })
+        })
+    </script>
+
+</body>
+</html>
